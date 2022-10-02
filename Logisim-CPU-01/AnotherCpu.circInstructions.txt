@@ -1,0 +1,193 @@
+OPcode = 6 bits, reg0 and reg1 = 4bit address, mem0 = 12bit RAM address, last 16 bits(mem0 + reg1) are signed integer
+* means may replicate(probably not needed)
+
+NOPC(00 0000|01) none //None OPeration Code
+ADD (00 0001|01) reg0, reg1 // adds reg0 to reg1 and stores the result in reg0 
+SUB (00 0010|02) reg0, reg1 // subtracts reg0 from reg1 and stores the result in reg0 
+CMP (00 0101|05) reg0, reg1 // compares reg0 and reg1 and sends flags from the ALU
+NAND(0 0110|06) reg0, reg1 // compares all bits of two registers with nand gate(like a 16 bit nand gate) and stores the result in reg0
+*JMP (00 1100|0c) mem0 // Sets the instruction counter to mem0 address
+HLT (00 1101|0d) None //halts the computer(like a shutdown)
+SRV (00 1110|0e) reg0, 16 bit signed integer // Store Register Value | store 16 bit signed integer in reg0
+CPR (00 1111|0f) reg0, reg1 // Copy Register | copies data from reg1 and sends it to reg0 (regs were swapped time ago)
+RCL (01 0000|10) reg0 //Register Clear | wipes the data from a register
+MCL (01 0001|11) mem0 // Memory Clear | wipes the data from a memory address
+LDM (01 0010|12) reg0, mem0 // LoaD from Memory | loads the data from memory address to reg0
+LDR (01 0011|13) reg0, mem0 // LoaD from Register | loads the data from reg0 to the memory address mem0 
+JIE (01 0100|14) mem0 | Jump If Equal| if the cmp flag for equal is positive jump to mem0
+JLT (01 0101|15) mem0 | Jump if Less Than| if the cmp flag for less than is positive jump to mem0
+JGT (01 0110|16) mem0 | Jump if Bigger Than| if the cmp flag for bigger than is positive jump to mem0
+DWP (01 0111|17) reg0, reg1 | DraW Pixel | draw pixel(x(reg0), y(reg1)) to the screen
+
+/*TODO FOR BRESSENHAM DRAWING ALGORITHM(imgur.com/a/2uT7LaV):
+//SGN (01 0100|14) reg0, reg1 // SiGN | If reg0 > reg1 send 1 in reg0 if the opposite than -1 if reg0 = reg1 return 0
+//ABS (01 0101|15) reg0 //ABSolute | send the absolute value of reg0 to reg0
+//MAX (01 0110|16) reg0, reg1 //MAX | send the bigger number to reg0
+//MIN (01 0111|17) reg0, reg1 //MIN | send the smaller number to reg0
+*/
+
+PLAN FOR IF STATEMENTS
+
+jie (Jump If Equal)
+jlt (Jump if Less Than)
+jgt (Jump if Greater Than)
+
+the cmp stays forever
+if 5 = 3:
+cmp 5, 3
+jlt *just after the statement*
+jgt *just after the statement*
+
+if 5 < 3:
+cmp 5, 3
+jgt *just after the statement*
+jie *just after the statement*
+
+if 5 <= 3:
+cmp 5, 3
+jgt *just after the statement*
+
+if 5 > 3:
+cmp 5, 3
+jlt *just after the statement*
+jie *just after the statement*
+
+if 5 >= 3:
+cmp 5, 3
+jlt *just after the statement*
+
+
+
+
+
+
+DONTKNOW: Dont know what to do with this: MOV (NULL|NULL) reg0, reg1 // Move moves data from reg0 to reg1
+
+TODO: make the instruction rom one long string of bits with tag(1101 for example) that shows the
+end of the instruction(quite hard dont know how to do it)
+
+TODO: make a ram to work and make some programs in rom to load using decoder make able to load something from ram and send something to it.
+
+//TODO: ADD ALL THEESE INSTRUCTIONS IN MAIN AND IN THE ALU
+//MUL (0 0011|03) reg0, reg1 // multiplies reg0 by reg1 and stores the result in reg0
+//DIV (0 0100|04) reg0, reg1 // divides reg0 by reg1 and stores the result in reg0
+//AND (0 0011|03) reg0, reg1 // compares all bits of two registers with and gate(like a 16 bit and gate)
+//OR  (0 0100|04) reg0, reg1 // compares all bits of two registers with or  gate(like a 16 bit or  gate)
+//XOR (0 0101|05) reg0, reg1 // compares all bits of two registers with xor gate(like a 16 bit xor gate)
+//NOR (0 0111|07) reg0, reg1 // compares all bits of two registers with nor  gate(like a 16 bit xor  gate)
+//XNOR(0 1000|08) reg0, reg1 // compares all bits of two registers with xnor gate(like a 16 bit xnor gate)
+
+the registers store 16 bit signed numbers based on two's complement. You can use negator to make the numbers more readable
+
+programs:
+multiply by 3
+
+RCL 0        | 100000
+RCL 1        | 101000
+SRV 0, 0, 02 | 0e0002
+CPR 0, 1     | 0f0100
+ADD 0, 1     | 010100
+ADD 0, 1     | 010100
+RCL 1        | 101000
+HLT          | 0d0000
+
+copy paste   | 100000 101000 0e0002 0f0100 010100 010100 101000 0d0000
+
+bresenham's line algorithm:
+A.x = mem(00)
+A.y = mem(01)
+B.x = mem(02)
+B.y = mem(03)
+
+incX = reg0
+dX = reg1
+
+incY = reg2
+dY = reg3
+
+XaY = reg4
+cmpt = reg5
+incD = reg6
+incS = reg7
+
+err = reg8
+X = reg9
+Y = reg10
+////////////////////////////////////////////////////////////////////// THAT IS THE OLD PROGRAM NOT FINISHED
+//Clean All Registers
+04 | RCL reg0
+05 | RCL reg1
+06 | RCL reg2
+07 | RCL reg3
+08 | RCL reg4
+09 | RCL reg5
+0a | RCL reg6
+0b | RCL reg7
+0c | RCL reg8
+0d | RCL reg9
+0e | RCL reg10
+0f | RCL reg11
+10 | RCL reg12
+11 | RCL reg13
+12 | RCL reg14
+13 | RCL reg15
+
+//Load Point A and Point B
+14 | LDM reg11, mem00
+15 | LDM reg12, mem01
+16 | LDM reg13, mem02
+17 | LDM reg14, mem03
+
+//Setup X and Y
+18 | CPR reg9, reg11
+19 | CPR reg10, reg13
+
+1a | SUB reg13, reg11
+1b | CPR reg0, reg13
+1b | SRV reg11, 0000
+
+1c | CMP reg0, reg11
+1d | JGT 0e
+1e | JIE 0e
+1f | SRV reg0, ffff
+
+20 | CMP reg0, reg15
+21 | JLT 12
+22 | JIE 12
+23 | SRV reg0, 0001
+
+24 | 
+
+SGN reg0:
+SRV reg15, 0000
+if reg0 < reg15:
+cmp reg0, reg15
+jlt *just after the statement*
+jgt *just after the statement*
+SRV reg15, 0000
+End of if
+
+if reg0 < reg15:
+cmp reg0, reg15
+jgt *just after the statement*
+jie *just after the statement*
+SRV reg15, ffff
+End of if
+
+if reg0 > reg15:
+cmp reg0, reg15
+jlt *just after the statement*
+jie *just after the statement*
+SRV reg15, 0001
+End of if
+*/End of SGN
+
+ABS reg0:
+SRV reg14, 0000
+if reg0 < reg14:
+cmp reg0, reg14
+jgt *just after the statement*
+jie *just after the statement*
+NAND reg0, reg0
+SRV reg14, 0001
+ADD reg0, reg14
