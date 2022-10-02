@@ -1,0 +1,116 @@
+FIRST:
+The assembler is kinda bad but if you know how to use it it won't be that bad(:
+RegisterValuesForBresenham.py is a program I made in python to tell my what the values of the registers should be so I know where in the .asm I fucked up so badly(: also you should pass values like 0000 not 0x0000 in the py file
+
+Make a .asm file or whatever and open it in a text editor of your choice
+
+12bit Signed Int is reg1 + mem0(4 + 8Bits), also It's Extended to 16 bit one to be used in registers and the ALU
+OPCode = 5Bit Value
+reg0 = 4Bit Address
+reg1 = 4Bit Address
+mem0 = 8Bit RAM Address
+mem1 = 4Bit Secondary RAM Address
+
+The OPCode is the first
+reg0 and mem1 share the same position in the RAM and are after the OPCode
+reg1 is after reg0 or mem1
+mem0 is the last 8Bit number
+
+All OPCodes
+	 Binary|Hex
+NOP (0 0000|00) |No OPeration
+ADD (0 0001|01) reg0, reg1 					| adds reg0 to reg1 and stores the result in reg0 
+SUB (0 0010|02) reg0, reg1 					| subtracts reg0 from reg1 and stores the result in reg0 
+NND (0 0011|03) reg0, reg1 					| uses 12 bit nand gate with 2 inputs and stores the result in reg0 | Useful only with 2's compliment numbers e.g. if you subtract 1 from FFFF(-1) and flip it with nand gate it becomes 0001
+CMP (0 0100|04) reg0, reg1 					| compares reg0 and reg1 and sends flags from the ALU
+JMP (0 0101|05) mem0 						| JuMP |				| Sets the instruction counter to mem0 address
+JGT (0 0110|06) mem0 						| Jump if Greater Than	| if the cmp flag for greater than is positive jump to mem0
+JIE (0 0111|07) mem0 						| Jump If Equal			| if the cmp flag for equal is positive jump to mem0
+JLT (0 1000|08) mem0 						| Jump if Less Than		| if the cmp flag for less than is positive jump to mem0
+SRV (0 1001|09) reg0, 12 bit signed Int 	| Store Register Value 	| store 12 bit signed integer in reg0
+CPR (0 1010|0a) reg0, reg1 					| CoPy Register			| copies data from reg1 and sends it to reg0
+RCL (0 1011|0b) reg0 						| Register Clear 		| wipes the data from a register
+MCL (0 1100|0c) mem1  						| Memory Clear 			| wipes the data from a memory address
+LDM (0 1101|0d) mem1, reg1 					| LoaD from Memory 		| loads the data from memory address to reg0
+LDR (0 1110|0e) mem1, reg1 					| LoaD from Register	| loads the data from reg0 to the memory address mem0
+SMV (0 1111|0f) mem1, 12bit Signed Int  	| Send Memory Value 	| Sends 12 bit value
+SPC (1 0000|10) reg0 + reg1 + mem0(5-6-5RGB)|Set Pen Color 			| Sets the color screen drawer for DWP
+DWP (1 0001|11) reg0, reg1 					| DraW Pixel 			| draw pixel(x(reg0), y(reg1)) to the 64x64(3fx3f in Hex) screen
+HLT (1 0010|12) |HaLT |If you don't know it turns off the cpu clock
+
+Special
+You can use <somekindofnamethatisnt a number>: to create a JMPShortcut witch will get replaced by its actual value when you compile it. More in Examples
+; Are used as comments
+
+Statements
+if reg0 < 0{
+	reg0 = 0
+}
+SRV 0x0, 0xFFF(-1)
+SRV 0xA, 0x000 ;0xA(regA) is an temp register I will be using to compare reg0 and regA
+
+CMP 0x0, 0xA
+JGT	endOfIf01 ;Jump if reg0 is Greater than
+JIE endOfIf01 ;or equal
+	SRV 0x0, 0x000 ;Send 000 to reg0
+endOfIf01:
+
+with this in mind you can create if reg > 0, if reg = 0 by using the jump here are some more that i made a while ago
+jie (Jump If Equal)
+jlt (Jump if Less Than)
+jgt (Jump if Greater Than)
+
+the cmp stays forever
+if 5 = 3:
+cmp 5, 3
+jlt *just after the statement*
+jgt *just after the statement*
+
+if 5 < 3:
+cmp 5, 3
+jgt *just after the statement*
+jie *just after the statement*
+
+if 5 <= 3:
+cmp 5, 3
+jgt *just after the statement*
+
+if 5 > 3:
+cmp 5, 3
+jlt *just after the statement*
+jie *just after the statement*
+
+if 5 >= 3:
+cmp 5, 3
+jlt *just after the statement*
+
+Examples
+line 0| JMP JumpToMe
+line 1| JumpToMe:
+will be compiled to
+line 0| JMP 0x1
+
+line 0| JMP JumpToMe
+line 1| JumpToMe:
+will be compiled to
+line 0| JMP 0x1
+
+NOP will be delete if used so it have no purpose
+ADD reg0, reg1
+SUB reg0, reg1
+NND reg0, reg1
+CMP reg0, reg1
+JMP <mem0>(Almost impossible to work with) or <JMPShortcut>
+JGT <mem0>(Almost impossible to work with) or <JMPShortcut>
+JIE <mem0>(Almost impossible to work with) or <JMPShortcut>
+JLT <mem0>(Almost impossible to work with) or <JMPShortcut>
+SRV reg0, 0x000
+CPR reg0, reg1
+RCL reg0
+MCL mem1
+LDM mem1, reg1
+LDR mem1, reg1
+SMV mem1, 0x0000
+SPC 11111(R in 5bit binary), 111111(G in 6bit binary), 00000(B in 5bit binary)
+DWP reg0, reg1
+HLT <empty>

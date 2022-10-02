@@ -1,0 +1,50 @@
+OPcode = 5 bits, reg0, reg1 = 2 * 4bit address, mem0 = 8bit RAM address, last 12 bits(mem0 + reg1) are signed integer and all together are 21 bits
+
+NOP (0 0000|00) //No Operation
+ADD (0 0001|01) reg0, reg1 // adds reg0 to reg1 and stores the result in reg0 
+SUB (0 0010|02) reg0, reg1 // subtracts reg0 from reg1 and stores the result in reg0 
+NND (0 0011|03) reg0, reg1 // compares all bits of two registers with nand gate(like a 12 bit nand gate) and stores the result in reg0
+CMP (0 0100|04) reg0, reg1 // compares reg0 and reg1 and sends flags from the ALU
+JMP (0 0101|05) mem0 // Sets the instruction counter to mem0 address
+JGT (0 0110|06) mem0 | Jump if Greater Than| if the cmp flag for greater than is positive jump to mem0
+JIE (0 0111|07) mem0 | Jump If Equal| if the cmp flag for equal is positive jump to mem0
+JLT (0 1000|08) mem0 | Jump if Less Than| if the cmp flag for less than is positive jump to mem0
+SRV (0 1001|09) reg0, 12 bit signed integer // Store Register Value | store 12 bit signed integer in reg0
+CPR (0 1010|0a) reg0, reg1 // CoPy Register | copies data from reg1 and sends it to reg0 (regs were swapped time ago)
+RCL (0 1011|0b) reg0 //Register Clear | wipes the data from a register
+MCL (0 1100|0c) mem0(reg0 used as Address of ROM0)// Memory Clear | wipes the data from a memory address
+LDM (0 1101|0d) mem0(reg0 used as Address of ROM0), reg1 // LoaD from Memory | loads the data from memory address to reg0
+LDR (0 1110|0e) mem0(reg0 used as Address of ROM0), reg1 // LoaD from Register | loads the data from reg0 to the memory address mem0
+SMV (0 1111|0f) mem0(reg0 used as Address of ROM0), 12bit Value(Extended to 16 bit one) // Send Memory Value | Sends 12 bit value
+SPC (1 0000|10) reg0 + reg1 + mem0(5-6-5RGB) // Set Pen Color | Sets the color screen drawer for DWP
+DWP (1 0001|11) reg0, reg1 // DraW Pixel | draw pixel(x(reg0), y(reg1)) to the screen
+HLT (1 0010|12) //HaLT
+
+IF STATEMENTS
+jie (Jump If Equal)
+jlt (Jump if Less Than)
+jgt (Jump if Greater Than)
+
+the cmp stays forever
+if 5 = 3:
+cmp 5, 3
+jlt *just after the statement*
+jgt *just after the statement*
+
+if 5 < 3:
+cmp 5, 3
+jgt *just after the statement*
+jie *just after the statement*
+
+if 5 <= 3:
+cmp 5, 3
+jgt *just after the statement*
+
+if 5 > 3:
+cmp 5, 3
+jlt *just after the statement*
+jie *just after the statement*
+
+if 5 >= 3:
+cmp 5, 3
+jlt *just after the statement*
