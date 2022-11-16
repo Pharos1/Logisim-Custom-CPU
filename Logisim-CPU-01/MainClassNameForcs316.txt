@@ -1,0 +1,1 @@
+if it askes you for class name in logisim just type edu.cornell.cs316.Components also i found it from this video: youtube.com/watch?v=w7sp49imsuA
